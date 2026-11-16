@@ -17,7 +17,7 @@ Settings are saved per account. Module priority is Quest, Loot, then Service; on
 
 ## Modules and detection
 
-Each module registers a resolver using `LueurMarks:RegisterModule(name, callback)`. The callback receives the active soft-target unit token and GUID, and may return `{ icon = texturePath, tooltip = optionalText }` or `nil`.
+Each module registers a resolver using `LueurMarks:RegisterModule(name, callback, priority)`. The callback receives the active soft-target unit token and GUID, and may return `{ icon = texturePath, tooltip = optionalText }`, `{ atlas = atlasName, tooltip = optionalText }`, or `nil`. Lower priority numbers run first. A failing resolver is reported once through the WoW error handler without preventing other modules from running.
 
 Quest state uses the current Gossip quest lists and requires the target to be flagged as a quest giver. Loot detection marks dead, non-player units that Blizzard identifies as lootable. These details are client/API-dependent; the addon intentionally does not guess solely from creature names. Repair/anvil NPC IDs can be added to the tables in `Modules/Service.lua`; Blizzard does not expose a universally reliable pre-interaction repair/anvil capability query for every soft target. Exact Lueur frame global names vary by version, so the overlay checks Lueur's `LueurSoftTargetFrame` first and then Blizzard's `SoftTargetFrame` globals.
 

@@ -10,7 +10,19 @@ local defaults = {
   showLabels = false,
 }
 local modules = {}
+local orderedModules = {}
 ns.modules = modules
+
+local function rebuildModuleOrder()
+  wipe(orderedModules)
+  for name, module in pairs(modules) do
+    orderedModules[#orderedModules + 1] = { name = name, module = module }
+  end
+  table.sort(orderedModules, function(a, b)
+    if a.module.priority == b.module.priority then return a.name < b.name end
+    return a.module.priority < b.module.priority
+  end)
+end
 
 local function mergeDefaults(target, source)
   for key, value in pairs(source) do
@@ -24,7 +36,10 @@ local function mergeDefaults(target, source)
 end
 
 function ns:RegisterModule(name, callback, priority)
+  assert(type(name) == "string" and name ~= "", "LueurMarks module needs a name")
+  assert(type(callback) == "function", "LueurMarks module callback must be a function")
   modules[name] = { callback = callback, priority = priority or 100 }
+  rebuildModuleOrder()
 end
 
 function ns:GetSettings()
@@ -80,19 +95,15 @@ local function update()
   end
 
   local guid = UnitGUID(unit)
-  local ordered = {}
-  for name, module in pairs(modules) do
-    ordered[#ordered + 1] = { name = name, module = module }
-  end
-  table.sort(ordered, function(a, b)
-    if a.module.priority == b.module.priority then return a.name < b.name end
-    return a.module.priority < b.module.priority
-  end)
-
   local context
-  for _, entry in ipairs(ordered) do
-    local result = entry.module.callback(unit, guid)
-    if result then
+  for _, entry in ipairs(orderedModules) do
+    local ok, result = pcall(entry.module.callback, unit, guid)
+    if not ok then
+      if not entry.module.errorReported then
+        entry.module.errorReported = true
+        geterrorhandler()(string.format("LueurMarks module '%s' failed: %s", entry.name, tostring(result)))
+      end
+    elseif type(result) == "table" and (result.icon or result.atlas) then
       context = result
       break
     end
