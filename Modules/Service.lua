@@ -22,7 +22,9 @@ ns:RegisterModule("service", function(unit, guid)
   if id and anvilNPCs[id] then
     return { icon = "Interface/Icons/INV_Misc_StoneTablet_05", tooltip = "Anvil" }
   end
-  if UnitExists(unit) and UnitIsMerchant and UnitIsMerchant(unit) then
-    return { icon = "Interface/Trade_BlackSmithing", tooltip = "Vendor" }
+  -- CanMerchantRepair is authoritative once the merchant interaction is open;
+  -- it also correctly distinguishes ordinary merchants from repair vendors.
+  if UnitExists(unit) and CanMerchantRepair and CanMerchantRepair() then
+    return { icon = "Interface/Trade_BlackSmithing", tooltip = "Repair vendor" }
   end
 end, 30)
