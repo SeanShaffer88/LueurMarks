@@ -1,0 +1,13 @@
+## Interface: 120000
+## Title: LueurMarks
+## Notes: Contextual micro-icons for Lueur's soft-target frame.
+## Author: LueurMarks contributors
+## Version: 1.0.0
+## Dependencies: Lueur
+## OptionalDeps: Blizzard_ObjectiveTracker
+## SavedVariables: LueurMarksDB
+
+Core.lua
+Modules\Quest.lua
+Modules\Loot.lua
+Modules\Service.lua
